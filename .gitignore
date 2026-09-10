@@ -2,6 +2,7 @@
 venv/
 .venv/
 data/
+.vscode/
 
 # Compilation files
 \.gradle

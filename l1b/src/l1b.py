@@ -62,7 +62,8 @@ class l1b(initL1b):
         :param eq_mult: Gain factor, adimensional
         :return: TOA in DN, equalized
         """
-        #TODO
+        toa = (toa - eq_add) / eq_mult
+
         return toa
 
     def restoration(self,toa,gain):
@@ -73,10 +74,18 @@ class l1b(initL1b):
         :return: TOA in radiances [mW/sr/m2]
         """
         #TODO
+        toa *= gain
         self.logger.debug('Sanity check. TOA in radiances after gain application ' + str(toa[1,-1]) + ' [mW/m2/sr]')
 
         return toa
 
     def plotL1bToa(self, toa_l1b, outputdir, band):
-        #TODO
-        a=1 # dummy
+        plt.figure(figsize=(12, 6))
+        plt.plot(toa_l1b[1,:], label='TOA L1B ', color='red')
+        plt.title('Equalization and restoration for ' + band)
+        plt.xlabel('ACT pixel [-]')
+        plt.ylabel('TOA [mW/m2/sr]')
+        plt.grid()
+        plt.legend()
+        plt.savefig(os.path.join(outputdir, 'l1b_toa_' + band + '.png'))
+        plt.close()

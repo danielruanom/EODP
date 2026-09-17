@@ -2,7 +2,7 @@ from common.io.writeToa import readToa
 import numpy as np
 import matplotlib.pyplot as plt
 
-bands = bands = ['VNIR-0','VNIR-1','VNIR-2','VNIR-3']
+bands = ['VNIR-0','VNIR-1','VNIR-2','VNIR-3']
 threshold = 1e-6
 for band in bands:
     print('Processing band ' + band)

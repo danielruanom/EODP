@@ -33,8 +33,3 @@ for band in bands:
     plt.savefig('/home/daniel/EODP/data/EODP-TS-L1B/output/' + band + '_toa_comparison.png')
 
     input('Press Enter to continue to the next band...')
-
-
-#crossval against teahcer
-#plot 
-#explain plot

@@ -120,7 +120,11 @@ class mtf:
         :param D: Telescope diameter [m]
         :return: Defocus MTF
         """
-        #TODO
+        x = np.pi * defocus * fr2D * (1 - fr2D)
+        Hdefoc = np.zeros(fr2D.shape)
+        Hdefoc[fr2D>0] = 2/x[fr2D>0] * (x[fr2D>0]/2 - x[fr2D>0]**3/16 + x[fr2D>0]**5/384 - x[fr2D>0]**7/18432)
+        Hdefoc[fr2D>1] = 0
+        Hdefoc[fr2D==0] = 1
         return Hdefoc
 
     def mtfWfeAberrations(self, fr2D, lambd, kLF, wLF, kHF, wHF):

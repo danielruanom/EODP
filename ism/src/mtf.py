@@ -148,7 +148,7 @@ class mtf:
         :param fnD: 2D normalised frequencies (f/(1/w))), where w is the pixel width
         :return: detector MTF
         """
-        #TODO
+        Hdet = np.sinc(fn2D)
         return Hdet
 
     def mtfSmearing(self, fnAlt, ncolumns, ksmear):

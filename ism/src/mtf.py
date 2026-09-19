@@ -93,9 +93,14 @@ class mtf:
         """
         fs = 1.0 / w
         fc = D / (lambd * focal)
-        fnAct = np.fft.fftshift(np.fft.fftfreq(ncolumns))
-        fnAlt = np.fft.fftshift(np.fft.fftfreq(nlines))
-        fnAct2D, fnAlt2D = np.meshgrid(fnAct, fnAlt)
+        fstepAlt = 1/nlines/w 
+        fstepAct = 1/ncolumns/w 
+        eps = 1e-9
+        fAlt = np.arange(-1/(2*w),1/(2*w)-eps,fstepAlt)  
+        fAct = np.arange(-1/(2*w),1/(2*w)-eps,fstepAct)  
+        fnAlt = fAlt/fs
+        fnAct = fAct/fs
+        fnAlt2D, fnAct2D = np.meshgrid(fnAlt, fnAct, indexing='ij')
         fn2D = np.sqrt(fnAct2D**2 + fnAlt2D**2)
         fr2D = fn2D * (fs / fc)
         return fn2D, fr2D, fnAct, fnAlt
@@ -107,7 +112,7 @@ class mtf:
         :return: diffraction MTF
         """
         Hdiff = 2/np.pi * (np.arccos(fr2D) - fr2D * np.sqrt(1 - fr2D**2))
-        Hdiff[fr2D>1] = 0
+        Hdiff[fr2D*fr2D>1] = 0
         return Hdiff
 
 
@@ -122,8 +127,8 @@ class mtf:
         """
         x = np.pi * defocus * fr2D * (1 - fr2D)
         Hdefoc = np.zeros(fr2D.shape)
-        Hdefoc[fr2D>0] = 2/x[fr2D>0] * (x[fr2D>0]/2 - x[fr2D>0]**3/16 + x[fr2D>0]**5/384 - x[fr2D>0]**7/18432)
-        Hdefoc[fr2D>1] = 0
+        Hdefoc[fr2D*fr2D>0] =2/x[fr2D*fr2D>0] * j1(x[fr2D*fr2D>0]) # 2/x[fr2D*fr2D>0] * (x[fr2D*fr2D>0]/2 - x[fr2D*fr2D>0]**3/16 + x[fr2D*fr2D>0]**5/384 - x[fr2D*fr2D>0]**7/18432) #Approx version
+        Hdefoc[fr2D*fr2D>1] = 0
         Hdefoc[fr2D==0] = 1
         return Hdefoc
 
@@ -139,7 +144,7 @@ class mtf:
         :return: WFE Aberrations MTF
         """
         Hwfe = np.exp(-fr2D*(1-fr2D)*(kLF*(wLF/lambd)**2 + kHF*(wHF/lambd)**2))
-        Hwfe[fr2D>1] = 0
+        Hwfe[fr2D*fr2D>1] = 0
         return Hwfe
 
     def mtfDetector(self,fn2D):

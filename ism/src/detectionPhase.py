@@ -141,7 +141,10 @@ class detectionPhase(initIsm):
         :param kprnu: multiplicative factor to the standard normal deviation for the PRNU
         :return: TOA after adding PRNU [e-]
         """
-        #TODO
+        nalt, nact = toa.shape
+        prnu = np.random.normal(0, 1, nact) * kprnu
+        for i in range(nalt):
+            toa[i, :] = toa[i, :] * (1 + prnu)
         return toa
 
 

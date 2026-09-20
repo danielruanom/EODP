@@ -121,7 +121,7 @@ class detectionPhase(initIsm):
         toae = toa * QE  # [e-]
         return toae
 
-    def badDeadPixels(self, toa,bad_pix,dead_pix,bad_pix_red,dead_pix_red):
+    def badDeadPixels(self, toa, bad_pix, dead_pix, bad_pix_red, dead_pix_red):
         """
         Bad and dead pixels simulation
         :param toa: input toa in [e-]
@@ -131,7 +131,30 @@ class detectionPhase(initIsm):
         :param dead_pix_red: Reduction in the quantum efficiency for the dead pixels [-, over 1]
         :return: toa in e- including bad & dead pixels
         """
-        #TODO
+        _, toa_act = toa.shape
+        n_bad = int(toa_act * bad_pix / 100)
+        n_dead = int(toa_act * dead_pix / 100)
+
+        idx_bad = []
+        if n_bad > 0:
+            step_bad = int(toa_act / n_bad)
+            idx_bad = list(range(0, toa_act, step_bad))
+            toa[:, idx_bad] = toa[:, idx_bad] * (1 - bad_pix_red)
+        
+        idx_dead = []
+        if n_dead > 0:
+            step_dead = int(toa_act / n_dead)
+            idx_dead = list(range(0, toa_act, step_dead))
+            toa[:, idx_dead] = toa[:, idx_dead] * (1 - dead_pix_red)
+
+        #save to output a csv with the indexes of the bad and dead pixels
+        with open(self.outdir + '/bad_pixels_idx.csv', 'w') as f:
+            for idx in idx_bad:
+                f.write(f'{idx}\n')
+
+        with open(self.outdir + '/dead_pixels_idx.csv', 'w') as f:
+            for idx in idx_dead:
+                f.write(f'{idx}\n')
         return toa
 
     def prnu(self, toa, kprnu):

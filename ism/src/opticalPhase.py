@@ -121,12 +121,14 @@ class opticalPhase(initIsm):
         #load ISRF
         isrf_dir = self.auxdir + 'isrf/ISRF_'
         isrf, isrf_wv = readIsrf(isrf_dir, band)
+        #convert to nm
+        isrf_wv = isrf_wv * 1000 
         #normalize ISRF
         isrf = isrf / np.sum(isrf)
         #numerical integration of the TOA cube with the ISRF
         for i in range(sgm_toa.shape[0]):
             for j in range(sgm_toa.shape[1]):
-                cs = interp1d(sgm_wv/1000, sgm_toa[i,j,:], fill_value = (0,0), bounds_error = False)
+                cs = interp1d(sgm_wv, sgm_toa[i,j,:], fill_value = (0,0), bounds_error = False)
                 toa[i,j] = np.sum(cs(isrf_wv) * isrf)
                 
         return toa

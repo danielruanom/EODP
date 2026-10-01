@@ -119,6 +119,7 @@ class detectionPhase(initIsm):
         :return: toa in electrons
         """
         toae = toa * QE  # [e-]
+        toae [toae > self.ismConfig.FWC] = self.ismConfig.FWC
         return toae
 
     def badDeadPixels(self, toa, bad_pix, dead_pix, bad_pix_red, dead_pix_red):

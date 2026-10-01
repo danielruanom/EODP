@@ -184,7 +184,7 @@ class detectionPhase(initIsm):
         :return: TOA in [e-] with dark signal
         """
         nalt, nact = toa.shape
-        dsnu = np.random.normal(0, 1, nact) * kdsnu
+        dsnu = np.abs(np.random.normal(0, 1, nact) * kdsnu)
         Sd = ds_A_coeff * (T/Tref)**3 * np.exp(-ds_B_coeff * (1/T - 1/Tref))
         ds = Sd * (1 + dsnu)
         for i in range(nalt):

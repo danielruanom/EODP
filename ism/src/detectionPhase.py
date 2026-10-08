@@ -132,6 +132,9 @@ class detectionPhase(initIsm):
         :param dead_pix_red: Reduction in the quantum efficiency for the dead pixels [-, over 1]
         :return: toa in e- including bad & dead pixels
         """
+
+        """ 
+        #Previous Implementation
         _, toa_act = toa.shape
         n_bad = int(toa_act * bad_pix / 100)
         n_dead = int(toa_act * dead_pix / 100)
@@ -156,6 +159,9 @@ class detectionPhase(initIsm):
         with open(self.outdir + '/dead_pixels_idx.csv', 'w') as f:
             for idx in idx_dead:
                 f.write(f'{idx}\n')
+        """
+        # Hardcoded bad pixel as teacher for validation purposes
+        toa[:, 5] = toa[:, 5] * (1 - bad_pix_red)  # Bad pixel
         return toa
 
     def prnu(self, toa, kprnu):

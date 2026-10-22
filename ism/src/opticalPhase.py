@@ -72,14 +72,14 @@ class opticalPhase(initIsm):
 
             writeToa(self.outdir, saveas_str, toa)
 
-            title_str = 'TOA after the optical phase [mW/sr/m2]'
+            title_str = 'TOA after the optical phase [mW/m2]'
             xlabel_str='ACT'
             ylabel_str='ALT'
             plotMat2D(toa, title_str, xlabel_str, ylabel_str, self.outdir, saveas_str)
 
             idalt = int(toa.shape[0]/2)
             saveas_str = saveas_str + '_alt' + str(idalt)
-            plotF([], toa[idalt,:], title_str, xlabel_str, ylabel_str, self.outdir, saveas_str)
+            plotF([], toa[idalt,:], title_str, 'ACT pixel [-]', 'TOA [mW/m2]', self.outdir, saveas_str)
 
         return toa
 

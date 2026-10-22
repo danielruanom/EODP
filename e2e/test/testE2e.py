@@ -1,4 +1,5 @@
 from common.io.writeToa import readToa
+from config.ismConfig import ismConfig
 from netCDF4 import Dataset
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,6 +12,7 @@ e2e_dir = eodp_dir + '/data/EODP-TS-E2E/'
 bands = ['VNIR-0','VNIR-1','VNIR-2','VNIR-3']
 phases = ['_isrf', '_optical', '_e', '_detection', '']
 threshold = 1e-3 # [%] maxima diferencia relativa permitida
+config = ismConfig()
 
 #Cross validation del ISM y del L1B con las salidas de referencia (ism_out y l1b_out)
 for band in bands:
@@ -26,6 +28,12 @@ for band in bands:
     #en DN la diferencia es de cuantificacion: compruebo que como mucho es 1 DN
     diff_dn = np.abs(toa - toa_validation)
     print('Final DN: max difference ' + str(np.max(diff_dn)) + ' DN in ' + str(np.sum(diff_dn > 0)) + ' of ' + str(toa.size) + ' pixels')
+    #y que esos pixeles estan justo en x.5 DN antes de redondear, donde una diferencia de float32 cambia el redondeo
+    toa_detection = readToa(e2e_dir + 'output_ism/', 'ism_toa_detection_' + band + '.nc')
+    toa_dn_no_round = toa_detection * config.OCF * config.ADC_gain * (2**config.bit_depth - 1)/(config.max_voltage - config.min_voltage)
+    distance_to_half = np.abs(toa_dn_no_round - np.floor(toa_dn_no_round) - 0.5)
+    print('Distance to x.5 DN before rounding: max ' + str(np.max(distance_to_half[diff_dn > 0])) +
+          ' DN on the different pixels, median ' + str(np.median(distance_to_half)) + ' DN on all pixels')
 
     toa_l1b = readToa(e2e_dir + 'output_l1b/', 'l1b_toa_' + band + '.nc')
     toa_l1b_validation = readToa(e2e_dir + 'l1b_out/', 'l1b_toa_' + band + '.nc')

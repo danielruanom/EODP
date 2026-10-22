@@ -1,6 +1,7 @@
 # Virtual environments & Data directories
 venv/
 .venv/
+.venv-win/
 data/
 .vscode/
 

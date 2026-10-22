@@ -84,23 +84,64 @@ gsd_alt_l1c = np.concatenate([np.diff(np.sort(northing[easting == e])) for e in 
 print('GSD ACT L1B: ' + str(np.mean(gsd_act_l1b)) + ' m, L1C: ' + str(np.mean(gsd_act_l1c)) + ' m')
 print('GSD ALT L1B: ' + str(np.mean(gsd_alt_l1b)) + ' m, L1C: ' + str(np.mean(gsd_alt_l1c)) + ' m')
 
-plt.figure(figsize=(16, 6))
-plt.subplot(1, 2, 1)
-plt.plot(gsd_act_l1b[int(lat.shape[0]/2), :], label='L1B', color='blue')
-plt.plot(np.linspace(0, lat.shape[1]-2, len(gsd_act_l1c)), gsd_act_l1c, label='L1C', color='red')
+print('GSD ACT L1B variation: ' + str(np.max(gsd_act_l1b) - np.min(gsd_act_l1b)) + ' m, ALT: ' + str(np.max(gsd_alt_l1b) - np.min(gsd_alt_l1b)) + ' m')
+
+# Para los plots: linea central del L1B y la fila/columna MGRS con mas puntos del L1C
+idalt = int(lat.shape[0]/2)
+idact = int(lat.shape[1]/2)
+n_row = np.unique(northing)[np.argmax([np.sum(northing == n) for n in np.unique(northing)])]
+e_col = np.unique(easting)[np.argmax([np.sum(easting == e) for e in np.unique(easting)])]
+row_l1c = np.sort(easting[northing == n_row])
+col_l1c = np.sort(northing[easting == e_col])
+#distancia sobre el suelo desde el primer punto [km]
+dist_act_l1b = np.cumsum(gsd_act_l1b[idalt, :])/1000
+dist_alt_l1b = np.cumsum(gsd_alt_l1b[:, idact])/1000
+dist_act_l1c = (row_l1c[1:] - row_l1c[0])/1000
+dist_alt_l1c = (col_l1c[1:] - col_l1c[0])/1000
+
+# Zoom en el centro de la imagen: centros de pixel L1B y puntos MGRS L1C en metros respecto al centro
+lat0 = lat[idalt, idact]
+lon0 = lon[idalt, idact]
+x_l1b = np.radians(lon - lon0) * np.cos(np.radians(lat0)) * 6371008.8
+y_l1b = np.radians(lat - lat0) * 6371008.8
+x_l1c = np.radians(lon_l1c - lon0) * np.cos(np.radians(lat0)) * 6371008.8
+y_l1c = np.radians(lat_l1c - lat0) * 6371008.8
+
+plt.figure(figsize=(20, 6.5))
+plt.subplot(1, 3, 1)
+plt.scatter(x_l1b, y_l1b, color='blue', s=12, label='L1B pixel centres (' + f'{np.mean(gsd_act_l1b):.1f}' + ' m)')
+plt.scatter(x_l1c, y_l1c, color='red', marker='s', s=30, label='L1C MGRS points (100 m)')
+#linea y columna centrales del L1B para ver la orientacion de la malla del instrumento
+plt.plot(x_l1b[idalt, :], y_l1b[idalt, :], color='blue', linewidth=1, label='L1B ACT line')
+plt.plot(x_l1b[:, idact], y_l1b[:, idact], color='blue', linewidth=1, linestyle='--', label='L1B ALT column')
+plt.xlim([-300, 300])
+plt.ylim([-300, 300])
+plt.gca().set_aspect('equal')
+plt.title('Zoom at the image centre')
+plt.xlabel('East [m]')
+plt.ylabel('North [m]')
+plt.grid()
+plt.legend(loc='upper right')
+
+plt.subplot(1, 3, 2)
+plt.plot(dist_act_l1b, gsd_act_l1b[idalt, :], 'o-', color='blue', markersize=3, label='L1B: ' + f'{np.mean(gsd_act_l1b):.2f}' + ' m')
+plt.plot(dist_act_l1c, np.diff(row_l1c), 's-', color='red', markersize=4, label='L1C: ' + f'{np.mean(gsd_act_l1c):.2f}' + ' m')
+plt.ylim([0, 120])
 plt.title('GSD across track')
-plt.xlabel('ACT pixel [-]')
+plt.xlabel('Distance on ground [km]')
 plt.ylabel('GSD [m]')
 plt.grid()
-plt.legend()
-plt.subplot(1, 2, 2)
-plt.plot(gsd_alt_l1b[:, int(lat.shape[1]/2)], label='L1B', color='blue')
-plt.plot(np.linspace(0, lat.shape[0]-2, len(gsd_alt_l1c)), gsd_alt_l1c, label='L1C', color='red')
+plt.legend(loc='lower right')
+
+plt.subplot(1, 3, 3)
+plt.plot(dist_alt_l1b, gsd_alt_l1b[:, idact], 'o-', color='blue', markersize=3, label='L1B: ' + f'{np.mean(gsd_alt_l1b):.2f}' + ' m')
+plt.plot(dist_alt_l1c, np.diff(col_l1c), 's-', color='red', markersize=4, label='L1C: ' + f'{np.mean(gsd_alt_l1c):.2f}' + ' m')
+plt.ylim([0, 120])
 plt.title('GSD along track')
-plt.xlabel('ALT line [-]')
+plt.xlabel('Distance on ground [km]')
 plt.ylabel('GSD [m]')
 plt.grid()
-plt.legend()
+plt.legend(loc='lower right')
 plt.tight_layout()
 plt.savefig(output_dir + 'gsd.png')
 plt.close()

@@ -197,12 +197,14 @@ class mtf:
         :param band: band
         :return: N/A
         """
+        plt.figure()
         plt.imshow(Hsys, origin='lower', cmap='jet')
         plt.colorbar(label='MTF')
         plt.title(f'System MTF for band {band}')
         plt.xlabel('ACT')
         plt.ylabel('ALT')
         plt.savefig(os.path.join(directory, f'system_mtf_2d_{band}.png'))
+        plt.close()
 
         plt.figure(figsize=(10, 6))
         plt.plot(fnAct, Hdiff[nlines//2, :], label='Diffraction MTF')
@@ -220,6 +222,7 @@ class mtf:
         plt.legend()
         plt.grid()
         plt.savefig(os.path.join(directory, f'system_mtf_cutAct_{band}.png'))
+        plt.close()
 
         plt.figure(figsize=(10, 6))
         plt.plot(fnAlt, Hdiff[:, ncolumns//2], label='Diffraction MTF')
@@ -237,5 +240,6 @@ class mtf:
         plt.legend()
         plt.grid()
         plt.savefig(os.path.join(directory, f'system_mtf_cutAlt_{band}.png'))
+        plt.close()
 
 
